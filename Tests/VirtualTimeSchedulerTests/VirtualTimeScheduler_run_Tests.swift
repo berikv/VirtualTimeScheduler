@@ -34,11 +34,13 @@ final class VirtualTimeScheduler_run_Tests: XCTestCase {
         var actionsRan = 0
 
         scheduler.schedule(after: .seconds(2)) {
+            XCTAssertEqual(actionsRan, 1)
             XCTAssertEqual(scheduler.now, .seconds(2))
             actionsRan += 1
         }
 
         scheduler.schedule(after: .seconds(1)) {
+            XCTAssertEqual(actionsRan, 0)
             XCTAssertEqual(scheduler.now, .seconds(1))
             actionsRan += 1
         }
