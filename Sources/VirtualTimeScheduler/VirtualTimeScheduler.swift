@@ -62,7 +62,6 @@ extension VirtualTimeScheduler: Scheduler {
         _ action: @escaping () -> Void
     ) {
         add(actionRunner: ActionRunner(
-            scheduler: self,
             after: date,
             action: action))
     }
@@ -76,7 +75,6 @@ extension VirtualTimeScheduler: Scheduler {
         _ action: @escaping () -> Void
     ) -> Cancellable {
         let actionRunner = ActionRunner(
-            scheduler: self,
             after: date,
             interval: interval,
             action: action)
@@ -168,18 +166,15 @@ extension VirtualTimeScheduler {
         }
 
         let action: () -> ()
-        weak var scheduler: VirtualTimeScheduler?
         let interval: SchedulerTimeType.Stride?
         var cancelled = false
-        var nextDueTime: Time
+        private(set) var nextDueTime: Time
 
         init(
-            scheduler: VirtualTimeScheduler,
             after: SchedulerTimeType,
             interval: SchedulerTimeType.Stride? = nil,
             action: @escaping () -> ()
         ) {
-            self.scheduler = scheduler
             self.nextDueTime = after
             self.interval = interval
             self.action = action
@@ -195,9 +190,9 @@ extension VirtualTimeScheduler {
                 return
             }
 
-            let timeNs = time.value.magnitude
-            let nextDueTimeNs = nextDueTime.value.magnitude
-            let count = Int((timeNs - nextDueTimeNs) / interval.magnitude)
+            let timeM = time.value.magnitude
+            let nextDueTimeM = nextDueTime.value.magnitude
+            let count = Int((timeM - nextDueTimeM) / interval.magnitude)
 
             for _ in 0..<count {
                 guard !cancelled else { return }
