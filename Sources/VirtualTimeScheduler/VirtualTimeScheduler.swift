@@ -80,7 +80,10 @@ extension VirtualTimeScheduler: Scheduler {
     }
 
     private func add(actionRunner: ActionRunner) {
-        let index = scheduledActions.firstIndex(where: { actionRunner < $0 })
+        let index = scheduledActions.firstIndex(where: {
+            byNextDueTime(lhs: actionRunner, rhs: $0)
+        })
+
         scheduledActions
             .insert(actionRunner, at: index ?? scheduledActions.endIndex)
     }
@@ -134,7 +137,8 @@ extension VirtualTimeScheduler {
                 scheduledActions.remove(at: index!)
             }
 
-            scheduledActions.sort()
+            // 'interval' actions adjust their due time during setTime(to:)
+            scheduledActions.sort(by: byNextDueTime(lhs:rhs:))
         }
 
         isPreformingActions = false
@@ -142,19 +146,16 @@ extension VirtualTimeScheduler {
 }
 
 extension VirtualTimeScheduler {
-    internal class ActionRunner: Comparable {
+    internal func byNextDueTime(lhs: ActionRunner, rhs: ActionRunner) -> Bool {
+        lhs.nextDueTime < rhs.nextDueTime
+    }
+
+    internal class ActionRunner: Equatable {
         static func == (
-            lhs: VirtualTimeScheduler.ActionRunner,
-            rhs: VirtualTimeScheduler.ActionRunner
+            lhs: ActionRunner,
+            rhs: ActionRunner
         ) -> Bool {
             ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
-        }
-
-        static func < (
-            lhs: VirtualTimeScheduler.ActionRunner,
-            rhs: VirtualTimeScheduler.ActionRunner
-        ) -> Bool {
-            lhs.nextDueTime < rhs.nextDueTime
         }
 
         let action: () -> ()
