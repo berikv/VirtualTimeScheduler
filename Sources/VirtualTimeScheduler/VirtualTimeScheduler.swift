@@ -144,10 +144,10 @@ extension VirtualTimeScheduler {
             if action.nextDueTime <= time  {
                 let index = scheduledActions.firstIndex(of: action)
                 scheduledActions.remove(at: index!)
+            } else {
+                // 'interval' actions can their due time during setTime(to:)
+                scheduledActions.sort(by: byNextDueTime(lhs:rhs:))
             }
-
-            // 'interval' actions adjust their due time during setTime(to:)
-            scheduledActions.sort(by: byNextDueTime(lhs:rhs:))
         }
 
         isPreformingActions = false
