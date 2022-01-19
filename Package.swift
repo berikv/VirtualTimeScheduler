@@ -16,13 +16,11 @@ let package = Package(
             name: "VirtualTimeScheduler",
             targets: ["VirtualTimeScheduler"]),
     ],
-    dependencies: [
-        .package(name: "ClampedInteger", url: "http://github.com/berikv/ClampedInteger", from: "1.0.5")
-    ],
+    dependencies: [],
     targets: [
         .target(
             name: "VirtualTimeScheduler",
-            dependencies: ["ClampedInteger"]),
+            dependencies: []),
         .testTarget(
             name: "VirtualTimeSchedulerTests",
             dependencies: ["VirtualTimeScheduler"]),

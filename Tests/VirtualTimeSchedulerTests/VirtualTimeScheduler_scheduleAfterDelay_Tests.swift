@@ -97,7 +97,7 @@ final class VirtualTimeScheduler_scheduleAfterDelay_Tests: XCTestCase {
             interval: .seconds(2)) {
                 actionRunTimes.append(scheduler.now)
 
-                if scheduler.now == .seconds(16) {
+                if actionRunTimes.count == 3 {
                     cancellable?.cancel()
                 }
             }
@@ -125,9 +125,9 @@ final class VirtualTimeScheduler_scheduleAfterDelay_Tests: XCTestCase {
             interval: .seconds(2)) {
                 actionRunTimes.append(scheduler.now)
 
-                if scheduler.now == .seconds(12) {
+                if actionRunTimes.isEmpty {
                     scheduler.setTime(to: .seconds(13))
-                } else if scheduler.now == .seconds(16) {
+                } else if actionRunTimes.count == 3 {
                     cancellable?.cancel()
                 }
             }
