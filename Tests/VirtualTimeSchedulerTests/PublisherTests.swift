@@ -2,7 +2,7 @@ import XCTest
 import Combine
 import VirtualTimeScheduler
 
-final class VirtualTimeSchedulerTests: XCTestCase {
+final class PublisherTests: XCTestCase {
     func test_delay() {
         let scheduler = VirtualTimeScheduler()
         var publishedAt: TimeInterval?
@@ -10,7 +10,7 @@ final class VirtualTimeSchedulerTests: XCTestCase {
         let cancellable = Just(42)
             .delay(for: .seconds(3), scheduler: scheduler)
             .sink { value in
-                publishedAt = scheduler.now.timeInterval
+                publishedAt = scheduler.now.timeIntervalSinceReferenceTime
             }
 
         scheduler.run()

@@ -1,6 +1,15 @@
 
 import Combine
 
+/// A Combine Scheduler that executes actions based on a virtual clock.
+/// The virtual time scheduler can be used to test custom scheduling
+/// publishers, and for testing code that uses scheduled publishers.
+///
+/// Combine provides scheduling 
+/// - `delay(for:tolerance:scheduler:options:)`
+/// - `debounce(for:scheduler:options:)`
+/// - `throttle(for:scheduler:latest:)`
+///
 public final class VirtualTimeScheduler {
 
     /// This scheduler’s definition of the current moment in time.
@@ -186,18 +195,17 @@ extension VirtualTimeScheduler {
                 return
             }
 
-            let timeNs = time.timeInNanoseconds
-            let nextDueTimeNs = nextDueTime.timeInNanoseconds
-            let count = (timeNs.value - nextDueTimeNs.value) / interval.value
+            let timeNs = time.value.magnitude
+            let nextDueTimeNs = nextDueTime.value.magnitude
+            let count = Int((timeNs - nextDueTimeNs) / interval.magnitude)
 
             for _ in 0..<count {
                 guard !cancelled else { return }
                 action()
             }
 
-            let countPlusOne = Time.Stride(count + 1)
-            nextDueTime = SchedulerTimeType(
-                nextDueTimeNs + interval * countPlusOne)
+            let countPlusOne = Time.Stride(integerLiteral: count + 1)
+            nextDueTime.advance(by: interval * countPlusOne)
         }
     }
 }

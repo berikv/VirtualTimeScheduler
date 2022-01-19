@@ -1,4 +1,5 @@
 
+import Foundation
 import Combine
 
 extension VirtualTimeScheduler {
@@ -6,15 +7,19 @@ extension VirtualTimeScheduler {
 
         public static let referenceTime = Time(Stride(0))
 
-        internal var timeInNanoseconds: Stride
+        internal var value: Stride
 
         public init(_ stride: Stride) {
-            timeInNanoseconds = stride
+            value = stride
+        }
+
+        public var timeIntervalSinceReferenceTime: TimeInterval {
+            value.magnitude
         }
 
         public mutating func advance(by interval: Stride) {
             assert(interval >= 0)
-            timeInNanoseconds.value += interval.value
+            value.magnitude += interval.magnitude
         }
     }
 }
@@ -23,20 +28,20 @@ extension VirtualTimeScheduler.Time: Strideable {
     public struct Stride {
         public static let zero = Stride(0)
 
-        internal var value: Int
+        public internal(set) var magnitude: Double
 
-        internal init(_ value: Int) {
-            self.value = value
+        internal init(_ value: Double) {
+            self.magnitude = value
         }
     }
 
     public func distance(to other: VirtualTimeScheduler.Time) -> Stride {
-        Stride(timeInNanoseconds.value
-                .distance(to: other.timeInNanoseconds.value))
+        Stride(value.magnitude
+                .distance(to: other.value.magnitude))
     }
 
     public func advanced(by n: Stride) -> VirtualTimeScheduler.Time {
-        let time = Stride(timeInNanoseconds.value + n.value)
+        let time = Stride(value.magnitude + n.magnitude)
         return VirtualTimeScheduler.Time(time)
     }
 }
@@ -44,40 +49,23 @@ extension VirtualTimeScheduler.Time: Strideable {
 extension VirtualTimeScheduler.Time.Stride: SchedulerTimeIntervalConvertible {
 
     public static func seconds(_ s: Double) -> Self {
-        if s < Double(Int.min) { return Self(.min) }
-        if s > Double(Int.max) { return Self(.max) }
-        return .seconds(Int(s))
+        Self(s)
     }
 
     public static func seconds(_ s: Int) -> Self {
-        let report = s.multipliedReportingOverflow(by: 1_000_000_000)
-        if report.overflow {
-            return Self(s < 0 ? .min : .max)
-        } else {
-            return Self(report.partialValue)
-        }
+        Self(Double(s))
     }
 
     public static func milliseconds(_ ms: Int) -> Self {
-        let report = ms.multipliedReportingOverflow(by: 1_000_000)
-        if report.overflow {
-            return Self(ms < 0 ? .min : .max)
-        } else {
-            return Self(report.partialValue)
-        }
+        Self(Double(ms) / 1000)
     }
 
     public static func microseconds(_ us: Int) -> Self {
-        let report = us.multipliedReportingOverflow(by: 1_000)
-        if report.overflow {
-            return Self(us < 0 ? .min : .max)
-        } else {
-            return Self(report.partialValue)
-        }
+        Self(Double(us) / 1000_000)
     }
 
     public static func nanoseconds(_ ns: Int) -> Self {
-        Self(ns)
+        Self(Double(ns) / 1000_000_000)
     }
 }
 
@@ -85,38 +73,35 @@ extension VirtualTimeScheduler.Time.Stride: Comparable, SignedNumeric {
     public typealias IntegerLiteralType = Int
 
     public static func + (lhs: Self, rhs: Self) -> Self {
-        Self(lhs.value + rhs.value)
+        Self(lhs.magnitude + rhs.magnitude)
     }
 
     public static func - (lhs: Self, rhs: Self) -> Self {
-        Self(lhs.value - rhs.value)
+        Self(lhs.magnitude - rhs.magnitude)
     }
 
     public static func * (lhs: Self, rhs: Self) -> Self {
-        Self(lhs.value * rhs.value)
+        Self(lhs.magnitude * rhs.magnitude)
     }
 
     public static func *= (lhs: inout Self, rhs: Self) {
-        lhs.value *= rhs.value
+        lhs.magnitude *= rhs.magnitude
     }
 
     public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs.value < rhs.value
+        lhs.magnitude < rhs.magnitude
     }
 
     public init(integerLiteral value: Int) {
-        self.value = value
+        self.magnitude = Double(value)
     }
 
     public init?<T>(exactly source: T) where T : BinaryInteger {
-        guard let value = Int(exactly: source) else {
+        guard let magnitude = Double(exactly: source) else {
             return nil
         }
-
-        self.value = value
+        self.magnitude = magnitude
     }
-
-    public var magnitude: UInt { value.magnitude }
 }
 
 extension VirtualTimeScheduler.Time: SchedulerTimeIntervalConvertible {
