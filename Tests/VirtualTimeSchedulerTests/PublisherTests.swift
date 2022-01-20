@@ -21,7 +21,7 @@ final class PublisherTests: XCTestCase {
     func test_debounce() {
         let scheduler = VirtualTimeScheduler()
         var receivedValues = [Int]()
-        var receivedTimes = [TimeInterval]()
+        var receivedTimes = [Int]()
 
         let subject = PassthroughSubject<Int, Never>()
         let cancellable = subject
@@ -29,7 +29,7 @@ final class PublisherTests: XCTestCase {
             .sink { value in
                 receivedValues.append(value)
                 receivedTimes.append(
-                    scheduler.now.timeIntervalSinceReferenceTime)
+                    Int(scheduler.now.timeIntervalSinceReferenceTime * 1000))
             }
 
         for value in 0..<4 {
@@ -47,7 +47,7 @@ final class PublisherTests: XCTestCase {
         scheduler.advanceTime(by: .seconds(1))
 
         XCTAssertEqual(receivedValues, [3, 7])
-        XCTAssertEqual(receivedTimes, [1.4, 2.8000000000000003]) // yey for floating point values
+        XCTAssertEqual(receivedTimes, [1400, 2800])
         _ = cancellable
     }
 
