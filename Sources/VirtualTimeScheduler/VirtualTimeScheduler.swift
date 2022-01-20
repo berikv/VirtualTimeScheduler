@@ -1,14 +1,40 @@
 
 import Combine
 
+
 /// A Combine Scheduler that executes actions based on a virtual clock.
-/// The virtual time scheduler can be used to test custom scheduling
-/// publishers, and for testing code that uses scheduled publishers.
+/// Ideal for testing custom Publishers or testing time-dependent Pub-sub code.
 ///
-/// Combine provides scheduling 
-/// - `delay(for:tolerance:scheduler:options:)`
-/// - `debounce(for:scheduler:options:)`
-/// - `throttle(for:scheduler:latest:)`
+/// The scheduler will run scheduled actions when they are due, based on a
+/// "virtual" clock. The schedulers clock can be adjusted using one of these
+/// methods.
+///
+/// - run() - run until there are no more actions scheduled
+/// - step() - set the time to the due time of the first action that is due
+/// - advanceTime(by:) - advance the internal clock by a specified value
+/// - setTime(to:) - set the time to a value, the clock starts at `.referenceTime`
+///
+/// Actions can schedule other actions. The scheduler will run those actions if
+/// they are due, in the same time update call.
+///
+/// ```
+///     let scheduler = VirtualTimeScheduler()
+///
+///     let cancellable = Just(42)
+///         .delay(for: .seconds(3), scheduler: scheduler)
+///         .measureInterval(using: scheduler)
+///         .sink { value in
+///             print("Recieved \(value.magnitude) seconds later")
+///         }
+///
+///     print("Before run \(Date())")
+///     scheduler.run()
+///     print("After run \(Date())")
+///
+///     //  Before run 2022-01-20 14:13:11 +0000
+///     //  Recieved 3.0 seconds later
+///     //  After run 2022-01-20 14:13:11 +0000
+/// ```
 ///
 public final class VirtualTimeScheduler {
 
