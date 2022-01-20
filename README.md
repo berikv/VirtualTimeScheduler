@@ -45,7 +45,7 @@ actions have completed.
             .delay(for: .seconds(3), scheduler: scheduler)
             .measureInterval(using: scheduler)
             .sink { value in
-                print("Recieved \(value.magnitude) seconds later")
+                print("Received \(value.magnitude) seconds later")
             }
 
         print("Before run \(Date())")
@@ -53,7 +53,7 @@ actions have completed.
         print("After run \(Date())")
         
         //  Before run 2022-01-20 14:13:11 +0000
-        //  Recieved 3.0 seconds later
+        //  Received 3.0 seconds later
         //  After run 2022-01-20 14:13:11 +0000
 ```
 
@@ -68,7 +68,7 @@ any scheduled actions that are due by the new time.
             .debounce(for: .seconds(1), scheduler: scheduler)
             .sink { value in
                 let timeInterval = scheduler.now.timeIntervalSinceReferenceTime
-                print("Recieved \(value), \(timeInterval) seconds later")
+                print("Received \(value), \(timeInterval) seconds later")
             }
 
         for value in 0..<4 {
@@ -87,8 +87,8 @@ any scheduled actions that are due by the new time.
         _ = cancellable
 
         // Prints:
-        //   Recieved 3, 1.4 seconds later
-        //   Recieved 7, 2.8 seconds later
+        //   Received 3, 1.4 seconds later
+        //   Received 7, 2.8 seconds later
 ```
 
 It is also possible to set the time directly using `setTime(to:)`.

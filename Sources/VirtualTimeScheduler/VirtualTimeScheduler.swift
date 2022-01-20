@@ -24,7 +24,7 @@ import Combine
 ///         .delay(for: .seconds(3), scheduler: scheduler)
 ///         .measureInterval(using: scheduler)
 ///         .sink { value in
-///             print("Recieved \(value.magnitude) seconds later")
+///             print("Received \(value.magnitude) seconds later")
 ///         }
 ///
 ///     print("Before run \(Date())")
@@ -32,7 +32,7 @@ import Combine
 ///     print("After run \(Date())")
 ///
 ///     //  Before run 2022-01-20 14:13:11 +0000
-///     //  Recieved 3.0 seconds later
+///     //  Received 3.0 seconds later
 ///     //  After run 2022-01-20 14:13:11 +0000
 /// ```
 ///
