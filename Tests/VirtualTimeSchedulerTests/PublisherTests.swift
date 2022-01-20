@@ -41,10 +41,9 @@ final class PublisherTests: XCTestCase {
             scheduler.advanceTime(by: .seconds(0.1))
         }
 
-        subject.send(4)
         scheduler.advanceTime(by: .seconds(1))
 
-        XCTAssertEqual(recievedValues, [3, 4])
+        XCTAssertEqual(recievedValues, [3, 7])
         _ = cancellable
     }
 
